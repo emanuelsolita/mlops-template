@@ -5,7 +5,9 @@ from dotenv import load_dotenv
 from typing import Optional
 
 from azureml.core import Environment, Workspace
-
+from azureml.core.compute import ComputeTarget, AksCompute
+from azureml.core.compute_target import ComputeTargetException
+# ...
 
 @dataclass(frozen=True)
 class EnvironmentVariables:
@@ -35,3 +37,24 @@ def get_environment(ws: Workspace, env_vars: EnvironmentVariables) -> Environmen
             name=environment_name, file_path=env_vars.environment_file
         )
     return env
+
+
+
+def config_compute(ws: Workspace):
+    inference_cluster_name = "my-aks"
+    try:
+        aks_target = AksCompute(ws, name=inference_cluster_name)
+    except ComputeTargetException:
+        provisioning_config = AksCompute.provisioning_configuration(
+            vm_size='Standard_D2as_v4', # The smallest size
+            agent_count = 1,
+            cluster_purpose = AksCompute.ClusterPurpose.DEV_TEST # Needed for having less than three nodes
+        )
+        aks_target = ComputeTarget.create(
+            workspace = ws,
+            name = inference_cluster_name,
+            provisioning_configuration = provisioning_config
+        )
+        aks_target.wait_for_completion(show_output = True)
+
+    return aks_target

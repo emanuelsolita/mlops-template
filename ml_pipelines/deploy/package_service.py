@@ -12,10 +12,12 @@ inference_config = InferenceConfig(
     source_directory=env_vars.scoring_dir,
     environment=environment,
 )
+# Will return the latest model version
+model = Model(workspace, name=env_vars.model_name, version=None)
 
 # No model here yet!!!
 package = Model.package(
-    workspace, models=[], inference_config=inference_config, generate_dockerfile=True
+    workspace, models=[model], inference_config=inference_config, generate_dockerfile=True
 )
 package.wait_for_creation(show_output=True)
 

@@ -11,7 +11,7 @@ from azureml.core import Environment, Workspace
 class EnvironmentVariables:
     # Load the system environment variables
     load_dotenv()
-    model_name: Optional[str] = os.environ.get("MODEL_NAME", "diamond-linear-regressor")
+    model_name: Optional[str] = os.environ.get("MODEL_NAME", "my-regressor-model")
     environment_name: Optional[str] = os.environ.get(
         "ENVIRONMENT_NAME", "conda-environment"
     )

@@ -13,6 +13,18 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import GradientBoostingRegressor
 import numpy as np
 import joblib
+import argparse
+
+
+parser = argparse.ArgumentParser("This")
+parser.add_argument('--train-dataset', default='diamonds-train.csv')
+parser.add_argument('--test-dataset', default='diamonds-test.csv')
+parser.add_argument('--model-name', default='my-regressor-model')
+args = parser.parse_args()
+
+train_ds = args.train_dataset
+test_ds = args.test_dataset
+model_name = args.model_name
 
 #ws = Workspace.from_config()
 #experiment = Experiment(ws, "diamond-regression-experiment-interactive")
@@ -20,43 +32,13 @@ run = Run.get_context()
 experiment = run.experiment
 ws = run.experiment.workspace
 
-data_path = "../data"
-ds_train_name = "diamonds-train.csv"
-ds_test_name = "diamonds-test.csv"
 
 
-try:
-    diamond_train_dataset = Dataset.get_by_name(ws, name=ds_train_name, version=None)
-    diamonds_train = diamond_train_dataset.to_pandas_dataframe()
-except UserErrorException:
-    print(f"Failed to find a dataset by this name {ds_train_name}. Try to register a new one")
-    diamonds_train = pd.read_csv(Path(data_path, 'diamonds-train.csv'))
-    datastore = Datastore.get_default(ws)
-    # Register the dataset
-    diamond_train_dataset = Dataset.Tabular.register_pandas_dataframe(
-        diamonds_train,
-        datastore, 
-        show_progress=True, 
-        name=ds_train_name, 
-        description='Diamond Training Dataset'
-    )
+train_dataset = Dataset.get_by_name(ws, name=train_ds, version=None)
+diamonds_train = train_dataset.to_pandas_dataframe()
 
-
-try:
-    diamond_test_dataset = Dataset.get_by_name(ws, name=ds_test_name, version=None)
-    diamonds_test = diamond_test_dataset.to_pandas_dataframe()
-except UserErrorException:
-    print(f"Failed to find a dataset by this name: {ds_test_name}. Try to register a new one")
-    diamonds_test = pd.read_csv(Path(data_path, 'diamonds-test.csv'))
-    datastore = Datastore.get_default(ws)
-    # Register the dataset
-    diamond_test_dataset = Dataset.Tabular.register_pandas_dataframe(
-        diamonds_test,
-        datastore, 
-        show_progress=True, 
-        name=ds_test_name, 
-        description='Diamond Training Dataset'
-    )
+test_dataset = Dataset.get_by_name(ws, name=test_ds, version=None)
+diamonds_test = test_dataset.to_pandas_dataframe()
 
 
 def clean_dataframe(df):
@@ -106,14 +88,22 @@ path = Path("outputs", "model.pkl")
 path.parent.mkdir(exist_ok=True)
 joblib.dump(model, filename=str(path))
 
-#exp = Experiment(ws, 'diamond-regression-experiment-interactive')
+run.parent.log('r2', r2)
+run.parent.log('rmse', rmse)
 
-#run = exp.start_logging(snapshot_directory=".")  # display_name="My Run"
+run.upload_file(str(path.name), path_or_stream=str(path))
+print("path name")
+print(str(path.name))
+print("---------")
+all_models = Model.list(ws, name=model_name)
+if all(r2 > float(model.tags.get("r2", -np.inf)) for model in all_models):
+    print("Found a new winner. Registering the model.")
+    run.register_model(
+        model_name=model_name,
+        model_path=str(path.name),
+        description="Linear Diamond Regression Model",
+        model_framework="ScikitLearn",
+        datasets=[("training dataset", train_dataset), ("test dataset", test_dataset)],
+        tags={"rmse": rmse, "r2": r2},
+    )
 
-#run.log('r2', r2)
-#run.log('rmse', rmse)
-
-
-#run.upload_file(str(path.name), path_or_stream=str(path))
-
-#run.complete()

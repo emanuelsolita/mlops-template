@@ -1,8 +1,10 @@
 from azureml.core import Environment, Workspace, Experiment
 from ml_pipelines.utils import EnvironmentVariables, get_environment
-from azureml.core import ScriptRunConfig
+from azureml.core import ScriptRunConfig, RunConfiguration
 from azureml.core.compute import ComputeTarget, AmlCompute
 from azureml.core.compute_target import ComputeTargetException
+from azureml.pipeline.steps import PythonScriptStep
+from azureml.pipeline.core import Pipeline
 
 ws = Workspace.from_config()
 env_vars = EnvironmentVariables()
@@ -35,15 +37,27 @@ except ComputeTargetException:
     # This will block the script until the resource is created
     cpu_cluster.wait_for_completion(show_output=True)
 
+run_config = RunConfiguration()
+# Remember to set our favorite environment
+run_config.environment = environment
 
-
-src = ScriptRunConfig(
-    source_directory='src/service',
-    script='train.py', 
-    environment=environment,
+train_step = PythonScriptStep(
+    name="training_step",
+    script_name="train.py",
+    source_directory="src/service",
     compute_target=cpu_cluster,
-    arguments= ['--model-name', 'new-diamond-regressor']
-    )
-    
-run = experiment.submit(src)
-run.wait_for_completion(show_output=True)
+    runconfig=run_config,
+    allow_reuse=False,
+    # arguments = [...]
+)
+
+pipeline = Pipeline(
+    workspace=ws, steps=[train_step], description="Model Training and Deployment"
+)
+pipeline.validate() # Make sure the pipeline is functioning
+
+pipeline_name = "my-smooth-pipeline"
+published_pipeline = pipeline.publish(pipeline_name)
+print(published_pipeline.id)
+
+

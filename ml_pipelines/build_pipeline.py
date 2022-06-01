@@ -4,7 +4,7 @@ from azureml.core import ScriptRunConfig, RunConfiguration
 from azureml.core.compute import ComputeTarget, AmlCompute
 from azureml.core.compute_target import ComputeTargetException
 from azureml.pipeline.steps import PythonScriptStep
-from azureml.pipeline.core import Pipeline
+from azureml.pipeline.core import Pipeline, PipelineParameter
 
 ws = Workspace.from_config()
 env_vars = EnvironmentVariables()
@@ -41,6 +41,11 @@ run_config = RunConfiguration()
 # Remember to set our favorite environment
 run_config.environment = environment
 
+parameters = [PipelineParameter('train-dataset', 'diamonds-train.csv'),
+              PipelineParameter('test-dataset', 'diamonds-test.csv'),
+              PipelineParameter('model-name', 'my-regressor-model')
+             ]
+
 train_step = PythonScriptStep(
     name="training_step",
     script_name="train.py",
@@ -48,7 +53,7 @@ train_step = PythonScriptStep(
     compute_target=cpu_cluster,
     runconfig=run_config,
     allow_reuse=False,
-    # arguments = [...]
+    arguments = ['--train-dataset',parameters[0],'--test-dataset',parameters[1],'--model-name',parameters[1]]
 )
 
 pipeline = Pipeline(

@@ -2,6 +2,7 @@
 from azureml.core.model import InferenceConfig
 from azureml.core import Workspace, Model
 from ml_pipelines.utils import EnvironmentVariables, get_environment
+from azureml.core.webservice import LocalWebservice, AksWebservice
 
 
 workspace = Workspace.from_config()
@@ -47,3 +48,7 @@ http://localhost:6789/score
 stop the service by running this in a new terminal:
 docker stop mycontainer"""
 print(info_string)
+
+
+
+#deployment_config = LocalWebservice.deploy_configuration(port=6789)

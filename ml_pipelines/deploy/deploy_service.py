@@ -3,7 +3,7 @@ from azureml.core.model import InferenceConfig
 from azureml.core import Workspace, Model
 from ml_pipelines.utils import EnvironmentVariables, get_environment, config_compute
 
-from azureml.core.webservice import LocalWebservice
+from azureml.core.webservice import LocalWebservice, AksWebservice
 
 workspace = Workspace.from_config()
 env_vars = EnvironmentVariables()
@@ -20,7 +20,9 @@ inference_config = InferenceConfig(
 model = Model(workspace, name=env_vars.model_name, version=None)
 
 # Create 
-deployment_config = LocalWebservice.deploy_configuration(port=6789)
+#deployment_config = LocalWebservice.deploy_configuration(port=6789)                        # Local Webservice
+deployment_config = AksWebservice.deploy_configuration(cpu_cores = 1, memory_gb = 1)        # Deployed in AML
+
 
 aks_target = config_compute(workspace) 
 

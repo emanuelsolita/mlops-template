@@ -88,8 +88,12 @@ path = Path("outputs", "model.pkl")
 path.parent.mkdir(exist_ok=True)
 joblib.dump(model, filename=str(path))
 
-run.parent.log('r2', r2)
-run.parent.log('rmse', rmse)
+run.log('r2', r2)
+run.log('rmse', rmse)
+
+# Only for pipeline runs
+#run.parent.log('r2', r2)
+#run.parent.log('rmse', rmse)
 
 run.upload_file(str(path.name), path_or_stream=str(path))
 print("path name")

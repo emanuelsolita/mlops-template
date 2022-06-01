@@ -12,9 +12,10 @@ pipeline = PublishedPipeline.get(workspace, id=pipeline_id)
 pipelines = PublishedPipeline.list(workspace)
 piplines = [p for p in pipelines if p.name == pipeline_name]
 pipeline = pipelines[0]
+print(pipeline)
 
 experiment = Experiment(workspace, environment_name)
 
-run = experiment.submit(pipeline)
+run = experiment.submit(pipeline, pipeline_parameters={'--model-name': 'my-regressor-model'})
 status = run.wait_for_completion(show_output=True)
 print(status) # Should say finished

@@ -3,11 +3,9 @@ from azureml.core.model import InferenceConfig
 from azureml.core import Workspace, Model
 from ml_pipelines.utils import EnvironmentVariables, get_environment
 
-print("----------------Get ws----------------")
+
 workspace = Workspace.from_config()
 env_vars = EnvironmentVariables()
-
-print("----------------Get env----------------")
 
 environment = get_environment(workspace, env_vars)
 inference_config = InferenceConfig(
@@ -16,12 +14,8 @@ inference_config = InferenceConfig(
     environment=environment,
 )
 # Will return the latest model version
-print("----------------")
-print("----------------Get model----------------")
 model = Model(workspace, name=env_vars.model_name, version=None)
 
-print("----------------")
-print("----------------Model package----------------")
 
 # No model here yet!!!
 package = Model.package(
@@ -29,11 +23,10 @@ package = Model.package(
 )
 package.wait_for_creation(show_output=True)
 
-print("----------------")
+
 # Save the dockerfile and related resources here
 package.save("./imagefiles")
 
-print("----------------")
 
 # Get the Azure container registry that the model/Dockerfile uses.
 acr = package.get_container_registry()

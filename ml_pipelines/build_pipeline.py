@@ -9,8 +9,9 @@ from azureml.pipeline.core import Pipeline, PipelineParameter
 ws = Workspace.from_config()
 env_vars = EnvironmentVariables()
 
-environment_name = "some-experiment-name"
-experiment = Experiment(ws, environment_name)
+environment_name = "some-environment-name"
+experiment_name = "remote-experiment-name"
+experiment = Experiment(ws, experiment_name)
 
 try:
     environment = Environment.get(ws, environment_name=environment_name)

@@ -23,13 +23,13 @@ model = Model(workspace, name=env_vars.model_name, version=None)
 #deployment_config = LocalWebservice.deploy_configuration(port=6789)                        # Local Webservice
 deployment_config = AksWebservice.deploy_configuration(cpu_cores = 1, memory_gb = 1)        # Deployed in AML
 
-
-aks_target = config_compute(workspace) 
+inference_cluster_name = "my-ak-2"
+aks_target = config_compute(workspace, inference_cluster_name) 
 
 
 service = Model.deploy(
     workspace=workspace,
-    name="my-deployed-service",
+    name="cool-deployed-service-2",
     models=[model],
     inference_config=inference_config,
     deployment_config=deployment_config,

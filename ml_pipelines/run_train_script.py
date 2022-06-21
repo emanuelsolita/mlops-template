@@ -7,8 +7,11 @@ from azureml.core.compute_target import ComputeTargetException
 ws = Workspace.from_config()
 env_vars = EnvironmentVariables()
 
-environment_name = "some-experiment-name"
-experiment = Experiment(ws, environment_name)
+environment_name = "some-environment-name"
+experiment_name = "remote-experiment-name"
+
+
+experiment = Experiment(ws, experiment_name)
 
 try:
     environment = Environment.get(ws, environment_name=environment_name)
@@ -21,6 +24,10 @@ except Exception as e:
 
 # Uncomment when running locally
 #environment.python.user_managed_dependencies = True
+
+print('--------------------')
+print(environment)
+print('--------------------')
 
 cpu_cluster_name = "my-cool-cluster"
 try:

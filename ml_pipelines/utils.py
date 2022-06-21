@@ -40,8 +40,8 @@ def get_environment(ws: Workspace, env_vars: EnvironmentVariables) -> Environmen
 
 
 
-def config_compute(ws: Workspace):
-    inference_cluster_name = "my-aks"
+def config_compute(ws: Workspace, inference_cluster_name="my-ak"):
+    #inference_cluster_name = "my-ak-2"
     try:
         aks_target = AksCompute(ws, name=inference_cluster_name)
     except ComputeTargetException:

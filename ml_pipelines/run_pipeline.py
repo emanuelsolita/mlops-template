@@ -4,7 +4,7 @@ from azureml.pipeline.core import PublishedPipeline
 
 pipeline_id = 'f3e71376-99dd-4869-9fd2-a3143cac285f'
 pipeline_name = "my-smooth-pipeline"
-environment_name = "some-experiment-name"
+environment_name = "some-environment-name"
 
 workspace = Workspace.from_config()
 pipeline = PublishedPipeline.get(workspace, id=pipeline_id)
@@ -18,4 +18,4 @@ experiment = Experiment(workspace, environment_name)
 
 run = experiment.submit(pipeline, pipeline_parameters={'--model-name': 'my-regressor-model'})
 status = run.wait_for_completion(show_output=True)
-print(status) # Should say finished
+print(status)   # Should say finished
